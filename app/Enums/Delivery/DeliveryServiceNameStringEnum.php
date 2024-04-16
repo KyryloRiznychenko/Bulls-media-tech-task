@@ -8,6 +8,9 @@ enum DeliveryServiceNameStringEnum: string
     case UKRPOSHTA = 'ukrposhta';
     case JUSTIN = 'justin';
 
+    /**
+     * @return string[]
+     */
     static public function getAvailableServices(): array
     {
         return [
