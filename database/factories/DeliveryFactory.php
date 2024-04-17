@@ -29,7 +29,7 @@ class DeliveryFactory extends Factory
 
             'delivery_service_name' => $this->faker->randomKey(array_map(
                 fn(DeliveryServiceNameStringEnum $enum) => $enum->name,
-                DeliveryServiceNameStringEnum::getAvailableServices()
+                DeliveryServiceNameStringEnum::cases()
             )),
             'delivery_address_from' => config('delivery.store_address.default', $this->faker->address()),
             'delivery_address_to' => $this->faker->address(),
