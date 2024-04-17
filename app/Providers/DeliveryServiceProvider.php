@@ -35,11 +35,11 @@ class DeliveryServiceProvider extends ServiceProvider
         $this->app->bind(JustinDeliveryProvider::class, fn(Application $app) => new JustinDeliveryProvider(
             config('delivery.services.test.api')
         ));
-
-        $this->app->bind(DeliveryService::class, fn(Application $app) => new DeliveryService(
-            new DeliveryRepository(),
-            new DeliveryLogger(),
-        ));
+//
+//        $this->app->bind(DeliveryService::class, fn(Application $app) => new DeliveryService(
+//            new DeliveryRepository(),
+//            new DeliveryLogger(),
+//        ));
     }
 
     /**
