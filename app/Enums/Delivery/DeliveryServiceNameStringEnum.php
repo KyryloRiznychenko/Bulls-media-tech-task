@@ -4,19 +4,24 @@ namespace App\Enums\Delivery;
 
 enum DeliveryServiceNameStringEnum: string
 {
-    case NOWAPOSHTA = 'novaposhta';
-    case UKRPOSHTA = 'ukrposhta';
-    case JUSTIN = 'justin';
+    case NOVAPOSHTA = 'Nova Poshta';
+    case UKRPOSHTA = 'Ukrposhta';
+    case JUSTIN = 'Justin';
+
+    public static function getAvailableServices(): array
+    {
+        return [
+            self::NOVAPOSHTA,
+            self::UKRPOSHTA,
+            self::JUSTIN,
+        ];
+    }
 
     /**
      * @return string[]
      */
-    static public function getAvailableServices(): array
+    public static function getAvailableServicesName(): array
     {
-        return [
-            self::NOWAPOSHTA->value,
-            self::UKRPOSHTA->value,
-            self::JUSTIN->value,
-        ];
+        return array_map(fn(DeliveryServiceNameStringEnum $enum) => $enum->name, self::getAvailableServices());
     }
 }
