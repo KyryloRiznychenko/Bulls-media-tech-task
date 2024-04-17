@@ -46,7 +46,7 @@ class DeliveryTest extends TestCase
             'customer_phone_number' => $this->faker->numerify('+38063#######'),
             'customer_email' => $this->faker->email(),
 
-            'package_width' => $this->faker->numerify('##.##'),
+            'package_width' => $this->faker->numerify('##.###'),
             'package_height' => $this->faker->numerify('##.##'),
             'package_length' => $this->faker->numerify('##.##'),
             'package_weight' => $this->faker->numerify('##.##'),

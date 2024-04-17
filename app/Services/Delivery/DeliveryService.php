@@ -10,13 +10,11 @@ use App\Services\Delivery\Providers\JustinDeliveryProvider;
 use App\Services\Delivery\Providers\NovaPoshtaDeliveryProvider;
 use App\Services\Delivery\Providers\UkrPoshtaDeliveryProvider;
 use Exception;
-use JsonException;
 use Symfony\Component\HttpFoundation\Response;
 
 class DeliveryService
 {
     public function __construct(
-        private readonly string $defaultStoreAddress,
         private readonly DeliveryRepository $repository,
         private readonly DeliveryLogger $logger,
     ) {
@@ -25,7 +23,7 @@ class DeliveryService
     /**
      * @param  string  $deliveryProviderName
      * @return DeliveryProviderInterface
-     * @throws JsonException
+     * @throws Exception
      */
     private function getDeliveryProvider(string $deliveryProviderName): DeliveryProviderInterface
     {
@@ -38,7 +36,8 @@ class DeliveryService
                 default => throw new Exception()
             };
         } catch (Exception $e) {
-            throw new JsonException(
+            $this->logger->writeException($e->getMessage(), $e->getCode() ?: Response::HTTP_NOT_IMPLEMENTED);
+            throw new Exception(
                 "{$e->getLine()} \nUnavailable Delivery Service Provider: $deliveryProviderName",
                 Response::HTTP_UNPROCESSABLE_ENTITY
             );
@@ -61,29 +60,31 @@ class DeliveryService
      * @param  string  $chosenDeliveryService
      * @param  string  $deliveryTo
      * @return bool
-     * @throws JsonException
+     * @throws Exception
      */
     public function sendPackage(array $inputData, string $chosenDeliveryService, string $deliveryTo): bool
     {
+        $defaultStoreAddress = config('delivery.store_address.default');
         $deliveryServiceProvider = $this->getDeliveryProvider($chosenDeliveryService);
         $deliveryEntity = $this->repository->store(array_merge($inputData, [
             'delivery_service_name' => $chosenDeliveryService,
-            'delivery_address_from' => $inputData['delivery_address_from'] ?? $this->defaultStoreAddress,
+            'delivery_address_from' => $inputData['delivery_address_from'] ?? $defaultStoreAddress,
             'delivery_address_to' => $deliveryTo,
         ]));
 
         try {
             $response = $deliveryServiceProvider->sendPackage($inputData, [
-                'from' => $inputData['delivery_address_from'] ?? $this->defaultStoreAddress,
+                'from' => $inputData['delivery_address_from'] ?? $defaultStoreAddress,
                 'to' => $deliveryTo,
             ]);
         } catch (Exception $e) {
             $this->logger->writeException($e->getMessage(), $e->getCode());
-            throw new JsonException($e->getMessage(), $e->getCode());
-
+            throw new Exception($e->getMessage(), $e->getCode() ?: Response::HTTP_SERVICE_UNAVAILABLE);
             // Here you can add a new Log logic for ASAP
         }
 
+        // Here, I expect that I will always get a Response (class) entity.
+        // If not there should be a check of the instanceof and use another type of interface.
         if (!in_array($response->status(), [200, 201])) {
             // Log via the magic method __invoke.
             $this->logger->writeResponseResult($deliveryEntity->uuid, $response);

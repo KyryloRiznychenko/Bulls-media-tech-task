@@ -23,8 +23,7 @@ class DeliveryServiceProvider extends ServiceProvider
     {
         $this->app->bind(DeliveryProviderInterface::class, NovaPoshtaDeliveryProvider::class);
         $this->app->bind(NovaPoshtaDeliveryProvider::class, fn(Application $app) => new NovaPoshtaDeliveryProvider(
-            config(sprintf('delivery.services.%s.api', DeliveryServiceNameStringEnum::NOVAPOSHTA->name)),
-            config('delivery.store_address.default'),
+            config(sprintf('delivery.services.%s.api', DeliveryServiceNameStringEnum::NOVAPOSHTA->name))
         ));
 
         $this->app->bind(DeliveryProviderInterface::class, UkrPoshtaDeliveryProvider::class);
@@ -38,7 +37,6 @@ class DeliveryServiceProvider extends ServiceProvider
         ));
 
         $this->app->bind(DeliveryService::class, fn(Application $app) => new DeliveryService(
-            config('delivery.store_address.default'),
             new DeliveryRepository(),
             new DeliveryLogger(),
         ));

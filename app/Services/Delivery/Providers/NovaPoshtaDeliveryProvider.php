@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\Http;
 final class NovaPoshtaDeliveryProvider implements DeliveryProviderInterface
 {
     public function __construct(
-        private readonly string $apiUrl,
-        private readonly string $defaultStoreAddress
+        private readonly string $apiUrl
     ) {
 
     }
@@ -27,7 +26,7 @@ final class NovaPoshtaDeliveryProvider implements DeliveryProviderInterface
             'customer_name' => $inputData['customer_name'],
             'phone_number' => $inputData['customer_phone_number'],
             'email' => $inputData['customer_email'],
-            'sender_address' => $addresses['from'] ?? $this->defaultStoreAddress,
+            'sender_address' => $addresses['from'] ?? config('delivery.store_address.default'),
             'delivery_address' => $addresses['to'],
         ]);
     }

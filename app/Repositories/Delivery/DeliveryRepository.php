@@ -5,7 +5,6 @@ namespace App\Repositories\Delivery;
 use App\Models\Delivery;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use JsonException;
 use Symfony\Component\HttpFoundation\Response;
 
 class DeliveryRepository
@@ -23,6 +22,7 @@ class DeliveryRepository
         } catch (Exception $e) {
             DB::rollBack();
 
+            // Or we can make a custom Exception for push notification etc.
             throw new Exception(
                 "{$e->getLine()} \n{$e->getMessage()}",
                 Response::HTTP_UNPROCESSABLE_ENTITY
