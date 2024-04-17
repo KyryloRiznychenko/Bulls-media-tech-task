@@ -127,6 +127,12 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        // We can make here a new one (a handler) for sending logs to admins or something like that.
+        'deliveries' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/deliveries.log'),
+            'level' => 'emergency',
+        ],
     ],
 
 ];

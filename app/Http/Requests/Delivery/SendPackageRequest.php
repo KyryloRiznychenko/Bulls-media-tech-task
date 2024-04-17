@@ -37,7 +37,7 @@ class SendPackageRequest extends FormRequest
     public function prepareForValidation(): void
     {
         // Setup by default Nova Poshta
-        if (request()->isEmptyString('delivery.service_name')) {
+        if (request()->isEmptyString('delivery_service_name')) {
             $this->merge(['delivery_service_name' => DeliveryServiceNameStringEnum::NOVAPOSHTA->name]);
         }
     }

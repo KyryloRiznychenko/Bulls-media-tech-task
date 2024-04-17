@@ -4,18 +4,20 @@ namespace Tests\Feature;
 
 // use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Enums\Delivery\DeliveryServiceNameStringEnum;
-use App\Models\Delivery;
-use App\Services\Delivery\Providers\NovaPoshtaDeliveryProvider;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class ExampleTest extends TestCase
+class DeliveryTest extends TestCase
 {
+    use RefreshDatabase, WithFaker;
+
     public function test_is_api_configs_setup(): void
     {
         $this->assertTrue(
             config('delivery.store_address.default')
             && config('delivery.services.test.api')
-            && config(sprintf('delivery.services.%s.api', DeliveryServiceNameStringEnum::NOWAPOSHTA->name))
+            && config(sprintf('delivery.services.%s.api', DeliveryServiceNameStringEnum::NOVAPOSHTA->name))
         );
     }
 
@@ -26,31 +28,31 @@ class ExampleTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_creation_of_novaposha_delivery_service_and_sending_a_package(): void
+    public function test_sending_package(): void
     {
-        $deliveryEntity = Delivery::create([]);
-        $apiUrl = config(sprintf('delivery.services.%s.api', DeliveryServiceNameStringEnum::NOWAPOSHTA->name));
-        $defaultStoreAddress = config('delivery.store_address.default');
-        $deliveryProvider = new NovaPoshtaDeliveryProvider($apiUrl, $defaultStoreAddress);
+        $response = $this->post(
+            route('delivery.send'),
+            $this->generatePackageRequestData(DeliveryServiceNameStringEnum::UKRPOSHTA->name)
+        );
 
-        $this->assertTrue($deliveryProvider instanceof NovaPoshtaDeliveryProvider);
+        $response->assertStatus(200);
     }
 
-    private function generateDeliveryEntity(): Delivery
-    {
-        $faker = \Faker\Factory::create();
+    private function generatePackageRequestData(
+        string $deliveryServiceName = DeliveryServiceNameStringEnum::NOVAPOSHTA->name
+    ): array {
+        return [
+            'customer_name' => $this->faker->name(),
+            'customer_phone_number' => $this->faker->numerify('+38063#######'),
+            'customer_email' => $this->faker->email(),
 
-        return Delivery::create([
-            'customer_name' => $faker->name(),
-            'customer_phone_number' => $faker->phoneNumber(),
-            'customer_email' => $faker->email(),
+            'package_width' => $this->faker->numerify('##.##'),
+            'package_height' => $this->faker->numerify('##.##'),
+            'package_length' => $this->faker->numerify('##.##'),
+            'package_weight' => $this->faker->numerify('##.##'),
 
-            'package_width' => $faker->numerify('##.##'),
-            'package_height' => $faker->numerify('##.##'),
-            'package_length'=>$faker->numerify('##.##'),
-            'package_weight' => $faker->numerify('##.##'),
-
-            'delivery_service_name' => $faker->randomKey(DeliveryServiceNameStringEnum::getAvailableServices())
-        ]);
+            'delivery_address_to' => $this->faker->address(),
+            'delivery_service_name' => $deliveryServiceName
+        ];
     }
 }
